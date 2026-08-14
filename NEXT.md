@@ -21,6 +21,13 @@ Read `brief.md` first — it is the spec. This file is only the handoff.
   (all five subscription states incl. the `null` one, `hasRenewalQueued` →
   `coveredUntil`, balance due, staff-account case), `/` routing gate on
   `membership.onboarded`.
+- Tabs: Membership / Plans / Profile under `app/(tabs)`. Plans is a price list
+  with a call-the-gym action; Profile shows the member code, every stored field
+  with "Not added yet" fallbacks, edit, logout, and account deletion.
+- Onboarding: four skippable steps (name/gender/DOB, height/weight/city,
+  goal/activity, medical + emergency contact) that PATCH the delta at each step
+  and finish with `POST /users/me/onboarding/complete`. Validation ranges mirror
+  the backend; empty strings become `null`, never `""`.
 - Backend warmed on launch and on foreground.
 
 ## Not done
