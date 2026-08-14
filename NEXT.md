@@ -25,25 +25,19 @@ Read `brief.md` first — it is the spec. This file is only the handoff.
 
 ## Not done
 
-1. **Onboarding** — `app/onboarding.tsx` is a placeholder with a working "skip"
-   that calls `POST /users/me/onboarding/complete`. Build the real few-per-screen
-   questions (name, gender, DOB, height, weight, goal, activity level, medical
-   notes, emergency contact) via `PATCH /users/me`. Mirror the brief's validation
-   ranges; send `null` to clear, never `""`.
-2. **Plans screen** — `usePlans()` exists, no screen yet. Price list +
-   "call the gym" action, clearly not a checkout.
-3. **Profile** — view/edit everything, member code prominent, logout
-   (`signOut()` is ready), account deletion via `DELETE /users/me` with a
-   confirmation. Store-required.
-4. **Tab navigation** — home/plans/profile are flat routes right now; move them
-   under a `(tabs)` group once plans and profile exist.
-5. **Offline notice** — `@react-native-community/netinfo` is installed but unused.
-6. **Not verified on a real Android device yet.** Everything above was verified by
-   `expo export` + curl against the deployed backend.
+1. **Not run on a real Android device yet** — verified via `expo export` + curl
+   against the deployed backend only. `npx expo start` and scan the QR next.
+2. **Offline notice** — `@react-native-community/netinfo` is installed but unused.
+3. **Push notifications** — `pushToken` is accepted by `verifyOtp` but nothing
+   requests a token yet.
+4. **Date of birth** is a plain `YYYY-MM-DD` text field; a native date picker
+   would be better.
+5. `@expo/vector-icons` could not be installed (its peer graph conflicts with the
+   pinned React), so the tab bar is labels-only. Revisit if icons are wanted.
 
 ## Live-data gotcha
 
-Test member `9876543210` (Rohit Sharma) currently returns `subscription: null` and
-`membership.onboarded: false` — so that login lands in onboarding, then the empty
-home state, not the happy path the brief's sample JSON shows. `9845012345` is the
-one to try for an expiring membership.
+Both seeded test numbers (`9876543210`, `9845012345`) currently return
+`subscription: null`, so they land on the empty membership state rather than the
+happy path in the brief. `PATCH /users/me` was verified live: person-level and
+gym-level fields can go in one call, and `null` clears a field.

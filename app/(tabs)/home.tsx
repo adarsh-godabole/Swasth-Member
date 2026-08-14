@@ -2,19 +2,19 @@ import React from 'react';
 import { Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ApiError } from '../src/api/client';
-import { useGym, useMe } from '../src/api/queries';
-import type { Me, Subscription } from '../src/api/types';
-import { useServerWaking } from '../src/hooks/useServerWaking';
+import { ApiError } from '../../src/api/client';
+import { useGym, useMe } from '../../src/api/queries';
+import type { Me, Subscription } from '../../src/api/types';
+import { useServerWaking } from '../../src/hooks/useServerWaking';
 import {
   coverageDate,
   firstName,
   formatDate,
   formatRupees,
   remainingLabel,
-} from '../src/lib/format';
-import { Button, Card, ErrorNote } from '../src/ui/components';
-import { colors, spacing, type } from '../src/ui/theme';
+} from '../../src/lib/format';
+import { Button, Card, ErrorNote } from '../../src/ui/components';
+import { colors, spacing, type } from '../../src/ui/theme';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
