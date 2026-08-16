@@ -28,7 +28,14 @@ Read `brief.md` first — it is the spec. This file is only the handoff.
   goal/activity, medical + emergency contact) that PATCH the delta at each step
   and finish with `POST /users/me/onboarding/complete`. Validation ranges mirror
   the backend; empty strings become `null`, never `""`.
+- Check-in (added to the brief 2026-08-14): button + client-side confirmation on
+  Home under the membership card, hidden unless `subscription.status === 'ACTIVE'`;
+  streak / this-month / all-time strip; `/visits` history of the last 30. Double
+  tap is a success path (`alreadyCheckedIn: true`), streaks come from the server,
+  and `date` is rendered as the gym's day, never through the device timezone.
 - Backend warmed on launch and on foreground.
+- Running on Expo SDK 54 (RN 0.81.5) because iOS Expo Go trails at 54.
+  `AGENTS.md` still points at the v57 docs — worth correcting.
 
 ## Not done
 
