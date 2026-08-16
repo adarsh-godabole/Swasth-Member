@@ -118,6 +118,28 @@ export type Plan = {
   archivedAt: string | null;
 };
 
+export type CheckIn = {
+  id: string;
+  memberId: string;
+  /** The gym's local day, not the device's. Render as a plain date, never converted. */
+  date: string;
+  checkedInAt: string;
+  source: string;
+  /** true when this call hit an existing check-in for today — still a success. */
+  alreadyCheckedIn: boolean;
+};
+
+export type CheckInSummary = {
+  checkedInToday: boolean;
+  checkedInAt: string | null;
+  /** Server-computed. Never recompute client-side — you'll disagree with the server. */
+  currentStreak: number;
+  longestStreak: number;
+  visitsThisMonth: number;
+  totalVisits: number;
+  lastVisitAt: string | null;
+};
+
 export type OtpSendResponse = {
   phone: string;
   expiresAt: string;

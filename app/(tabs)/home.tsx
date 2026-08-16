@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiError } from '../../src/api/client';
 import { useGym, useMe } from '../../src/api/queries';
 import type { Me, Subscription } from '../../src/api/types';
+import { CheckInCard } from '../../src/features/CheckInCard';
 import { useServerWaking } from '../../src/hooks/useServerWaking';
 import {
   coverageDate,
@@ -53,6 +54,11 @@ export default function Home() {
       {error ? <ErrorNote message={error.message} /> : null}
 
       {me.data ? <MembershipCard me={me.data} /> : null}
+
+      {/* Directly under the membership card — it's the daily action. */}
+      {me.data?.membership?.role === 'MEMBER' ? (
+        <CheckInCard subscription={me.data.subscription} />
+      ) : null}
 
       {gym.data?.phone ? (
         <Card style={{ gap: spacing(1.5) }}>

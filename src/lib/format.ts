@@ -36,6 +36,33 @@ export function formatDate(iso: string | null | undefined) {
   });
 }
 
+/**
+ * A check-in's `date` is the gym's local day. Formatting it through the device
+ * timezone would shift an early-morning visit to the day before, so only the
+ * date part is ever read.
+ */
+export function formatGymDay(iso: string | null | undefined) {
+  if (!iso) return null;
+  const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-IN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  });
+}
+
+/** `checkedInAt` is a real instant, so the member's own clock is the right one. */
+export function formatTime(iso: string | null | undefined) {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date
+    .toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })
+    .toLowerCase();
+}
+
 export function formatRupees(amount: number) {
   return `₹${amount.toLocaleString('en-IN')}`;
 }

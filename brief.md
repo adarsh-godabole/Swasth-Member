@@ -29,12 +29,13 @@ Nothing exists yet. Scaffold from scratch.
 ### Be honest about the scope
 
 Today a member can: **log in, complete onboarding, see their membership status,
-browse the price list, and edit their profile.** That's it.
+check in for the day, see their streak and visit history, browse the price list,
+and edit their profile.** That's it.
 
-They cannot check in, book a class, see a workout, track progress, or buy
-anything — none of that exists in the backend yet. Build a genuinely good
-version of the small thing, and leave obvious room for the rest. Do not stub out
-fake screens for features that have no data behind them.
+They cannot book a class, see a workout, track body progress, or buy anything —
+none of that exists in the backend yet. Build a genuinely good version of the
+small thing, and leave obvious room for the rest. Do not stub out fake screens
+for features that have no data behind them.
 
 ---
 
@@ -199,6 +200,9 @@ PATCH  /users/me                     edit profile
 POST   /users/me/onboarding/complete mark onboarding done
 DELETE /users/me                     delete account
 GET    /plans                        the price list
+POST   /check-ins                    check in for today
+GET    /check-ins/me/summary         streak and counts
+GET    /check-ins/me                 visit history
 POST   /auth/*                       as above
 ```
 
@@ -325,6 +329,74 @@ Members see only active, public plans, cheapest sort order first.
 your own. `price` is in **rupees** as a number. **There is no way to buy from the
 app** — this is a price list. Pair it with a call button to the gym.
 
+### Check-in — the daily action
+
+Added 2026-08-14. **No QR code and no scanner.** The member taps a **Check in**
+button, the app asks *"Are you sure you're at the gym?"*, and on confirm you call
+this. **The confirmation is entirely client-side** — there is nothing to send and
+no flag to set. Do not skip it; it is the only thing standing between a
+mis-tap and a false attendance record.
+
+```
+POST /check-ins                check myself in for today
+GET  /check-ins/me/summary     streak and counts (home screen)
+GET  /check-ins/me?limit=30    my visit history
+```
+
+`POST /check-ins` takes **no body**:
+
+```json
+{
+  "id": "…",
+  "memberId": "…",
+  "date": "2026-08-14T00:00:00.000Z",
+  "checkedInAt": "2026-08-14T17:10:31.643Z",
+  "source": "APP",
+  "alreadyCheckedIn": false
+}
+```
+
+**One check-in per day, and tapping twice is not an error.** The second call
+returns the first check-in with `alreadyCheckedIn: true` and a `200`. Treat that
+as success — show "Already checked in at 5:10 pm", not an error. A double tap on
+a slow connection is far likelier than a genuine second visit.
+
+**Check-in requires an active membership.** Two distinct `403`s, and the wording
+differs on purpose:
+
+| Situation                  | Message                                                            |
+| -------------------------- | ------------------------------------------------------------------ |
+| Never bought a plan        | "You need an active membership to check in. Please visit the gym to join." |
+| Membership lapsed          | "Your membership has expired. Please renew at the gym."             |
+
+Show the message as-is. Better still, use `subscription` from `GET /users/me` to
+**hide or disable the button** when there's no active membership, so the member
+never taps into a refusal.
+
+### `GET /check-ins/me/summary`
+
+```json
+{
+  "checkedInToday": true,
+  "checkedInAt": "2026-08-14T17:10:31.643Z",
+  "currentStreak": 3,
+  "longestStreak": 3,
+  "visitsThisMonth": 5,
+  "totalVisits": 5,
+  "lastVisitAt": "2026-08-14T17:10:31.643Z"
+}
+```
+
+Drive the button's state from `checkedInToday`. Note that **`currentStreak`
+survives not having come in yet today** — someone who visited yesterday still
+shows their streak this morning; it only breaks after a full day is missed.
+Don't recompute streaks client-side, you'll disagree with the server.
+
+**Days are the gym's local days, not the device's and not UTC.** A 5am visit in
+India falls on the previous UTC date, so the server computes the day in the
+gym's timezone. Render `date` as a plain date; don't convert it to the device
+timezone or you will show visits shifting a day.
+
 ### `GET /gyms/current`
 
 No auth, so it works on the login screen. Returns `name`, `phone`, address
@@ -402,11 +474,18 @@ five states from the table above — **the `null` state deserves as much care as
 the happy path**, since every new signup starts there. Add the gym's phone
 number and address.
 
-### 5. Plans
+### 5. Check-in
+The **Check in** button belongs on Home, directly under the membership card. Tap
+→ "Are you sure you're at the gym?" → confirm → success state showing the time,
+the streak, and the button now disabled for the day. Hide the button entirely
+when there is no active membership. A small streak/visits strip and a simple
+visit history complete it.
+
+### 6. Plans
 The price list, with a "call the gym to join" action. Make it clear this is
 information, not a checkout.
 
-### 6. Profile
+### 7. Profile
 View and edit everything, member code shown prominently (the desk asks for it),
 logout, and account deletion.
 
@@ -423,8 +502,9 @@ logout, and account deletion.
 The backend has **no endpoints** for any of this. If a screen needs it, stop and
 say so:
 
-1. **Check-in / QR / attendance.** No check-in exists. `lastVisitAt` is always
-   null — nothing sets it yet. This is the next backend feature.
+1. ~~**Check-in / attendance.**~~ **Built** — see section 4. Button-and-confirm,
+   no QR. `lastVisitAt` is now populated. Still missing: check-*out*, so there is
+   no notion of who is currently inside, only who came today.
 2. **Classes, schedules, bookings.** None.
 3. **Trainers, workout plans, progress tracking, body measurements.** None.
 4. **Buying a plan in the app.** Deliberately absent — members pay cash at the

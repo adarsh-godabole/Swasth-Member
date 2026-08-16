@@ -4,6 +4,8 @@ import { APP_VERSION } from '../config';
 import { api } from './client';
 import type {
   AuthSession,
+  CheckIn,
+  CheckInSummary,
   DevicePlatform,
   Gym,
   Me,
@@ -49,4 +51,11 @@ export const usersApi = {
 
 export const plansApi = {
   list: () => api.get<Plan[]>('/plans'),
+};
+
+export const checkInsApi = {
+  /** No body. Requires an active membership — two distinct 403s, both worded for members. */
+  create: () => api.post<CheckIn>('/check-ins'),
+  summary: () => api.get<CheckInSummary>('/check-ins/me/summary'),
+  history: (limit = 30) => api.get<CheckIn[]>(`/check-ins/me?limit=${limit}`),
 };
