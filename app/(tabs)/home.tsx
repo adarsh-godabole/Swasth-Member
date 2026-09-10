@@ -15,7 +15,7 @@ import {
   remainingLabel,
 } from '../../src/lib/format';
 import { Button, Card, ErrorNote } from '../../src/ui/components';
-import { colors, spacing, type } from '../../src/ui/theme';
+import { TAB_BAR_HEIGHT, colors, spacing, type } from '../../src/ui/theme';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
@@ -31,7 +31,7 @@ export default function Home() {
       contentContainerStyle={{
         padding: spacing(3),
         paddingTop: insets.top + spacing(3),
-        paddingBottom: insets.bottom + spacing(4),
+        paddingBottom: insets.bottom + TAB_BAR_HEIGHT + spacing(4),
         gap: spacing(2),
       }}
       refreshControl={
