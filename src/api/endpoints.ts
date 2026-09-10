@@ -12,6 +12,9 @@ import type {
   OtpSendResponse,
   Plan,
   UpdateMePayload,
+  UpsertWorkoutPayload,
+  Workout,
+  WorkoutSummary,
 } from './types';
 
 const devicePlatform: DevicePlatform = Platform.OS === 'ios' ? 'IOS' : 'ANDROID';
@@ -51,6 +54,19 @@ export const usersApi = {
 
 export const plansApi = {
   list: () => api.get<Plan[]>('/plans'),
+};
+
+export const workoutsApi = {
+  /**
+   * PUT, not POST: the body map saves on every tap, so this has to be safe to
+   * repeat. `muscleGroups` replaces the stored set — un-tapping is a shorter
+   * array. 409 when there's no check-in today.
+   */
+  upsertToday: (payload: UpsertWorkoutPayload) =>
+    api.put<Workout>('/workouts/me/today', payload),
+  history: (limit = 30) => api.get<Workout[]>(`/workouts/me?limit=${limit}`),
+  summary: (days = 30) =>
+    api.get<WorkoutSummary>(`/workouts/me/summary?days=${days}`),
 };
 
 export const checkInsApi = {

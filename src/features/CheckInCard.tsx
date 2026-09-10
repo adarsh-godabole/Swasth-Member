@@ -3,8 +3,9 @@ import React from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
 import { ApiError } from '../api/client';
-import { useCheckIn, useCheckInSummary } from '../api/queries';
+import { useCheckIn, useCheckInSummary, useWorkoutHistory } from '../api/queries';
 import type { Subscription } from '../api/types';
+import { musclesLabel } from './workouts/summary';
 import { formatTime } from '../lib/format';
 import { Button, Card, ErrorNote } from '../ui/components';
 import { colors, spacing, type } from '../ui/theme';
@@ -22,6 +23,9 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
   const active = subscription?.status === 'ACTIVE';
   const summary = useCheckInSummary(active);
   const checkIn = useCheckIn();
+  // Only the newest one: it is today's if there is a workout for today, and one
+  // row is all this card needs. The full list is fetched by /workouts.
+  const workouts = useWorkoutHistory(1, active);
 
   if (!active) return null;
 
@@ -31,7 +35,13 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
       'This records today\'s visit.',
       [
         { text: 'Not yet', style: 'cancel' },
-        { text: "Yes, I'm here", onPress: () => checkIn.mutate() },
+        {
+          text: "Yes, I'm here",
+          // Straight into the session screen: the clock is already running from
+          // the check-in the server just recorded, so there is nothing to wait for.
+          onPress: () =>
+            checkIn.mutate(undefined, { onSuccess: () => router.push('/session') }),
+        },
       ],
     );
 
@@ -40,6 +50,14 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
   const checkedInAt = checkIn.data?.checkedInAt ?? summary.data?.checkedInAt ?? null;
   const checkedInToday = checkIn.isSuccess || !!summary.data?.checkedInToday;
   const error = checkIn.error as ApiError | null;
+
+  // Matched on the check-in instant, which the server copies to startedAt. The
+  // newest workout may well be last week's, and captioning that "Today" would
+  // be a lie.
+  const today = workouts.data?.find((row) => row.startedAt === checkedInAt) ?? null;
+  const loggedToday = today?.muscleGroups.length
+    ? musclesLabel(today.muscleGroups)
+    : null;
 
   return (
     <Card style={{ gap: spacing(1.5) }}>
@@ -50,7 +68,9 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
           <Text style={{ ...type.heading, color: colors.accent }}>
             You're checked in{checkedInAt ? ` at ${formatTime(checkedInAt)}` : ''}
           </Text>
-          <Text style={type.caption}>Have a good session.</Text>
+          <Text style={type.caption}>
+            {loggedToday ? `Today: ${loggedToday}` : 'Have a good session.'}
+          </Text>
         </View>
       ) : (
         <Button
@@ -62,6 +82,13 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
 
       {error ? <ErrorNote message={error.message} /> : null}
 
+      {checkedInToday ? (
+        <Button
+          label={loggedToday ? "Today's session" : 'Log your workout'}
+          onPress={() => router.push('/session')}
+        />
+      ) : null}
+
       {summary.data ? (
         <View style={{ flexDirection: 'row', gap: spacing(1) }}>
           {/* Streaks survive not having come in yet today, so this stays honest
@@ -72,13 +99,24 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
         </View>
       ) : null}
 
-      {summary.data?.totalVisits ? (
-        <Button
-          label="View all visits"
-          variant="ghost"
-          onPress={() => router.push('/visits')}
-        />
-      ) : null}
+      <View style={{ flexDirection: 'row', gap: spacing(1) }}>
+        {summary.data?.totalVisits ? (
+          <Button
+            label="All visits"
+            variant="ghost"
+            style={{ flex: 1 }}
+            onPress={() => router.push('/visits')}
+          />
+        ) : null}
+        {workouts.data?.length ? (
+          <Button
+            label="Past workouts"
+            variant="ghost"
+            style={{ flex: 1 }}
+            onPress={() => router.push('/workouts')}
+          />
+        ) : null}
+      </View>
     </Card>
   );
 }
