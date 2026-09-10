@@ -10,7 +10,7 @@ import { useMe } from '../../src/api/queries';
 import { useAuth } from '../../src/auth/AuthContext';
 import { activityLabel, formatDate, genderLabel, goalLabel } from '../../src/lib/format';
 import { Button, Card, ErrorNote } from '../../src/ui/components';
-import { colors, spacing, type } from '../../src/ui/theme';
+import { TAB_BAR_HEIGHT, colors, spacing, type } from '../../src/ui/theme';
 
 export default function Profile() {
   const insets = useSafeAreaInsets();
@@ -48,7 +48,7 @@ export default function Profile() {
       contentContainerStyle={{
         padding: spacing(3),
         paddingTop: insets.top + spacing(3),
-        paddingBottom: spacing(4),
+        paddingBottom: insets.bottom + TAB_BAR_HEIGHT + spacing(4),
         gap: spacing(2),
       }}
       refreshControl={

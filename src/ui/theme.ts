@@ -23,3 +23,13 @@ export const type = {
   label: { fontSize: 13, fontWeight: '600' as const, color: colors.textMuted },
   caption: { fontSize: 13, fontWeight: '400' as const, color: colors.textMuted },
 };
+
+/**
+ * Height of the tab bar, excluding the bottom safe-area inset.
+ *
+ * The bar is absolutely positioned so the glass has something to blur, which
+ * means it reserves no layout space. Every screen under it must pad its
+ * scroll content by this plus `insets.bottom`, or the last row sits behind
+ * the bar.
+ */
+export const TAB_BAR_HEIGHT = 62;
