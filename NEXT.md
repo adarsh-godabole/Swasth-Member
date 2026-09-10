@@ -33,6 +33,16 @@ Read `brief.md` first — it is the spec. This file is only the handoff.
   streak / this-month / all-time strip; `/visits` history of the last 30. Double
   tap is a success path (`alreadyCheckedIn: true`), streaks come from the server,
   and `date` is rendered as the gym's day, never through the device timezone.
+- Session + workout log (asked for 2026-09-10): checking in now pushes straight
+  to `/session`, a screen with a clock running from the server's `checkedInAt`
+  and a tappable front/back body map. Selections save on every tap, "Finish
+  session" stamps an end (there is still no check-out, so the member ends it),
+  and `/workouts` lists every logged day plus a server-computed 30-day tally.
+  **The backend for this was built in the same pass** (`Swasth-BE`, commit
+  "feat(workouts)"): `PUT /workouts/me/today`, `GET /workouts/me`,
+  `GET /workouts/me/summary`. A workout hangs off the check-in, so the gym's day
+  rules come for free. The body map is plain Views, not SVG, because
+  `react-native-svg` isn't in the graph.
 - Backend warmed on launch and on foreground.
 - Running on Expo SDK 54 (RN 0.81.5) because iOS Expo Go trails at 54.
   `AGENTS.md` still points at the v57 docs — worth correcting.
@@ -46,7 +56,11 @@ Read `brief.md` first — it is the spec. This file is only the handoff.
    requests a token yet.
 4. **Date of birth** is a plain `YYYY-MM-DD` text field; a native date picker
    would be better.
-5. `@expo/vector-icons` could not be installed (its peer graph conflicts with the
+5. **The workouts backend is only on `main` locally — not deployed.** The app
+   defaults to `https://swasth-be.onrender.com`, which has no `/workouts` routes
+   until that commit is pushed and `prisma migrate deploy` has run against Neon.
+   Until then the session screen's saves will 404.
+6. `@expo/vector-icons` could not be installed (its peer graph conflicts with the
    pinned React), so the tab bar is labels-only. Revisit if icons are wanted.
 
 ## Live-data gotcha

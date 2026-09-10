@@ -140,6 +140,63 @@ export type CheckInSummary = {
   lastVisitAt: string | null;
 };
 
+/** The body map's vocabulary. Server-owned — these strings are sent as-is. */
+export type MuscleGroup =
+  | 'CHEST'
+  | 'SHOULDERS'
+  | 'BICEPS'
+  | 'TRICEPS'
+  | 'FOREARMS'
+  | 'ABS'
+  | 'TRAPS'
+  | 'LATS'
+  | 'LOWER_BACK'
+  | 'GLUTES'
+  | 'QUADS'
+  | 'HAMSTRINGS'
+  | 'CALVES'
+  | 'CARDIO'
+  | 'FULL_BODY';
+
+export type Workout = {
+  id: string;
+  memberId: string;
+  /** The visit this belongs to — one workout per check-in. */
+  checkInId: string;
+  /** The gym's local day, like a check-in's. Render as a plain date. */
+  date: string;
+  muscleGroups: MuscleGroup[];
+  /** Mirrors the check-in instant — count the session timer from this. */
+  startedAt: string;
+  /** null until the member finishes; there is no check-out to infer one from. */
+  endedAt: string | null;
+  durationMinutes: number | null;
+  updatedAt: string;
+};
+
+/** The complete selection, not a delta — this replaces what the server holds. */
+export type UpsertWorkoutPayload = {
+  muscleGroups: MuscleGroup[];
+  /** true stamps the end, false reopens it. Omit to leave it alone. */
+  finished?: boolean;
+};
+
+export type MuscleGroupTally = {
+  muscleGroup: MuscleGroup;
+  /** Days the area was trained. */
+  days: number;
+};
+
+export type WorkoutSummary = {
+  days: number;
+  from: string;
+  to: string;
+  sessionsLogged: number;
+  minutesTrained: number;
+  /** Busiest first. Areas never trained in the window are absent, not zeroed. */
+  muscleGroups: MuscleGroupTally[];
+};
+
 export type OtpSendResponse = {
   phone: string;
   expiresAt: string;
