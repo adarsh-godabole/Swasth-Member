@@ -35,7 +35,25 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   web: { favicon: './assets/favicon.png' },
-  plugins: ['expo-router', 'expo-secure-store'],
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    // The in-app scanner. The phone's own camera app can read the door poster
+    // without any of this, so the permission is only ever asked for when the
+    // member taps Scan themselves.
+    [
+      'expo-camera',
+      {
+        cameraPermission:
+          'Allow Swasth to use the camera to scan the check-in code at your gym.',
+        barcodeScannerEnabled: true,
+        // We read a QR and nothing else. Left on, expo-camera asks Android for
+        // RECORD_AUDIO, which would show up on the store listing as microphone
+        // access this app has no use for.
+        recordAudioAndroid: false,
+      },
+    ],
+  ],
   extra: {
     gymCode,
     apiBaseUrl,

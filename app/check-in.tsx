@@ -20,6 +20,9 @@ import { colors, spacing, type } from '../src/ui/theme';
  *
  * Reachable without a code too, as the typed fallback: the code is printed
  * under the QR precisely because not every camera will follow a custom scheme.
+ *
+ * Every route in ends here — the deep link, the in-app scanner at /scan, and
+ * the typed code — so a visit is recorded in exactly one place.
  */
 export default function CheckInScreen() {
   const router = useRouter();
@@ -117,6 +120,7 @@ export default function CheckInScreen() {
         />
       </Card>
 
+      <Button label="Scan the QR instead" variant="ghost" onPress={() => router.replace('/scan')} />
       <Button label="Back" variant="ghost" onPress={() => router.replace('/home')} />
     </Screen>
   );

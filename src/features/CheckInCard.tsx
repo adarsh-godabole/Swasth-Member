@@ -11,9 +11,9 @@ import { Button, Card, ErrorNote } from '../ui/components';
 import { colors, spacing, type } from '../ui/theme';
 
 /**
- * The daily action. Two ways in: this button with a client-side confirmation,
- * or scanning the QR at the gym door, which deep-links to /check-in and skips
- * the confirmation because the scan already is one.
+ * The daily action. Three ways in: this button with a client-side
+ * confirmation, scanning the QR at the gym door, or typing the code printed
+ * under it. A scan is its own confirmation, so only the button asks.
  *
  * Rendered only when the membership is ACTIVE, so a member without one never
  * taps into a refusal.
@@ -79,11 +79,12 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
             onPress={confirm}
             loading={checkIn.isPending}
           />
-          {/* The typed fallback for when a camera won't follow the QR. */}
+          {/* The scanner is the discoverable path for anyone who opened the app
+              before thinking to use their own camera on the poster. */}
           <Button
-            label="Enter gym code"
+            label="Scan gym QR"
             variant="ghost"
-            onPress={() => router.push('/check-in')}
+            onPress={() => router.push('/scan')}
           />
         </View>
       )}
