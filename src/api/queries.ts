@@ -77,9 +77,18 @@ export function useCheckInHistory(limit = 30, enabled = true) {
 }
 
 export function useCheckIn() {
+  return useCheckInMutation(checkInsApi.create);
+}
+
+/** The QR path. Identical cache handling — only the call differs. */
+export function useCheckInByCode() {
+  return useCheckInMutation((code: string) => checkInsApi.createFromCode(code));
+}
+
+function useCheckInMutation<TArg>(mutationFn: (arg: TArg) => Promise<CheckIn>) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: checkInsApi.create,
+    mutationFn,
     onSuccess: (checkIn: CheckIn) => {
       // The summary is server-computed (streaks included), so refetch rather
       // than deriving anything locally.

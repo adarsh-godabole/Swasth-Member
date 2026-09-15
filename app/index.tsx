@@ -5,6 +5,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { ApiError } from '../src/api/client';
 import { useMe } from '../src/api/queries';
 import { useAuth } from '../src/auth/AuthContext';
+import { hasPendingCheckInCode } from '../src/features/checkInHandoff';
 import { Button, ErrorNote, Screen } from '../src/ui/components';
 import { colors, spacing, type } from '../src/ui/theme';
 
@@ -36,7 +37,13 @@ export default function Index() {
     );
   }
 
-  return <Redirect href={me.data?.membership?.onboarded ? '/home' : '/onboarding'} />;
+  if (!me.data?.membership?.onboarded) return <Redirect href="/onboarding" />;
+
+  // They scanned the door QR while signed out. Finish what the scan started
+  // rather than dropping them on the home screen still not checked in.
+  if (hasPendingCheckInCode()) return <Redirect href="/check-in" />;
+
+  return <Redirect href="/home" />;
 }
 
 function Splash() {

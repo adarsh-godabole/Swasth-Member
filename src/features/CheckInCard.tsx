@@ -11,9 +11,9 @@ import { Button, Card, ErrorNote } from '../ui/components';
 import { colors, spacing, type } from '../ui/theme';
 
 /**
- * The daily action. No QR and no scanner — a button plus a client-side
- * confirmation, which is the only thing between a mis-tap and a false
- * attendance record.
+ * The daily action. Two ways in: this button with a client-side confirmation,
+ * or scanning the QR at the gym door, which deep-links to /check-in and skips
+ * the confirmation because the scan already is one.
  *
  * Rendered only when the membership is ACTIVE, so a member without one never
  * taps into a refusal.
@@ -73,11 +73,19 @@ export function CheckInCard({ subscription }: { subscription: Subscription | nul
           </Text>
         </View>
       ) : (
-        <Button
-          label="Check in"
-          onPress={confirm}
-          loading={checkIn.isPending}
-        />
+        <View style={{ gap: spacing(1) }}>
+          <Button
+            label="Check in"
+            onPress={confirm}
+            loading={checkIn.isPending}
+          />
+          {/* The typed fallback for when a camera won't follow the QR. */}
+          <Button
+            label="Enter gym code"
+            variant="ghost"
+            onPress={() => router.push('/check-in')}
+          />
+        </View>
       )}
 
       {error ? <ErrorNote message={error.message} /> : null}

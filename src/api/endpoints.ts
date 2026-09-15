@@ -72,6 +72,13 @@ export const workoutsApi = {
 export const checkInsApi = {
   /** No body. Requires an active membership — two distinct 403s, both worded for members. */
   create: () => api.post<CheckIn>('/check-ins'),
+
+  /**
+   * The door QR. Same rules and same response as `create` — including
+   * `alreadyCheckedIn` on a second scan — plus a 400 for a malformed code and
+   * a 403 when the code belongs to another gym or has been rotated.
+   */
+  createFromCode: (code: string) => api.post<CheckIn>('/check-ins/qr', { code }),
   summary: () => api.get<CheckInSummary>('/check-ins/me/summary'),
   history: (limit = 30) => api.get<CheckIn[]>(`/check-ins/me?limit=${limit}`),
 };
